@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ghost in the Haveli | हवेली की भटकती रूह</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+
+    <!-- 1. Fullscreen Dark Canvas Layer -->
+    <div id="canvasContainer">
+        <canvas id="haveliCanvas"></canvas>
+    </div>
+
+    <!-- 2. Interactive Game HUD -->
+    <div id="uiLayer">
+        <!-- Top Bar: Title & Talisman Anger Meter -->
+        <header class="top-hud">
+            <div class="haveli-title">
+                <h1>हवेली की भटकती रूह</h1>
+                <span>Ghost in the Ancient Haveli</span>
+            </div>
+
+            <!-- The Talisman (ताबीज) Anger Meter -->
+            <div class="talisman-meter interactive" title="आत्मा का क्रोध (Ghost's Anger)">
+                <div class="talisman-icon">
+                    <div id="talismanGem" class="gem"></div>
+                </div>
+                <div class="meter-info">
+                    <div class="meter-label-row">
+                        <span id="moodTitle" class="mood-title">संदेही (Suspicious)</span>
+                        <span id="angerVal" class="anger-val">40%</span>
+                    </div>
+                    <div class="anger-bar-track">
+                        <div id="angerFill" class="anger-bar-fill"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Language & Journal Controls -->
+            <div class="top-actions interactive">
+                <select id="langSelect" class="lang-dropdown">
+                    <option value="hi-IN" selected>हिंदी (Rajasthan Haveli)</option>
+                    <option value="bn-IN">বাংলা (Bengal Rajbari)</option>
+                    <option value="mr-IN">मराठी (Peshwa Wada)</option>
+                </select>
+
+                <button id="journalBtn" class="hud-btn">
+                    <span>📜 रहस्य</span>
+                    <span id="clueCount">0/3</span>
+                </button>
+            </div>
+        </header>
+
+        <!-- Center: Spoken Riddles & Ghost Subtitles -->
+        <main class="center-dialogue-area">
+            <!-- User's Live Transcript Pill -->
+            <div id="userTranscript" class="user-transcript-pill"></div>
+
+            <!-- Ghost's Dialogue Parchment -->
+            <div class="ghost-subtitle-container interactive">
+                <div id="ghostDialogue" class="ghost-dialogue">
+                    कौन है... जो इस वीरान हवेली की चौखट लांघने का दुस्साहस कर रहा है?
+                </div>
+                <div id="ghostTranslation" class="ghost-translation">
+                    Who dares to cross the threshold of this desolate haveli? Speak... have you come seeking death, or to answer my riddles?
+                </div>
+                <div class="dialogue-controls">
+                    <button id="replayAudioBtn" class="icon-btn" title="आवाज़ पुनः सुनें">🔊 आवाज़ सुनें (Replay Voice)</button>
+                    <button id="translateToggleBtn" class="icon-btn">अनुवाद छिपाएं (Hide Translation)</button>
+                </div>
+            </div>
+        </main>
+
+        <!-- Bottom: Voice Interaction & Microphone -->
+        <footer class="bottom-hud">
+            <div class="mic-section interactive">
+                <canvas id="micVisualizer" width="160" height="160"></canvas>
+                <button id="micBtn" class="mic-button" title="बोलने के लिए दबाएं (Hold Space or Click)">
+                    <svg viewBox="0 0 24 24">
+                        <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/>
+                        <path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/>
+                    </svg>
+                </button>
+                <span id="micStatus" class="mic-status">बोलने के लिए दबाएं (Click or Hold Space to Speak)</span>
+            </div>
+
+            <!-- Fallback text button & drawer -->
+            <div class="interactive" style="text-align: center;">
+                <button id="textToggleBtn" class="icon-btn" style="font-size: 0.78rem;">⌨️ टाइप करके उत्तर दें (Type instead)</button>
+            </div>
+
+            <div id="textInputDrawer" class="text-drawer interactive">
+                <input type="text" id="textInput" class="text-input" placeholder="रानी साहिबा को उत्तर दें...">
+                <button id="textSubmitBtn" class="text-submit-btn">भेजें</button>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Notification Overlay -->
+    <div id="haveliNotif" class="haveli-notif"></div>
+
+    <!-- Modals -->
+    <!-- 1. Enter Haveli (Plays Creaky Door & Unlocks Web Audio) -->
+    <div id="enterDoorModal" class="modal-overlay">
+        <div class="door-card">
+            <div class="door-icon">🕯️🚪</div>
+            <h2>हवेली के भारी कपाट</h2>
+            <p>
+                आप एक 300 वर्ष पुरानी भुतहा हवेली के मुख्य द्वार पर खड़े हैं। अंदर केवल अंधेरा, एक टिमटिमाती मोमबत्ती, और रानी रूपमती की बेचैन आत्मा है जो केवल अपनी भाषा में बोलती है।<br><br>
+                <strong>नियम:</strong> मोमबत्ती को माउस से घुमाएं। अपनी आवाज़ में उत्तर दें। आदर और सही उत्तर आत्मा को शांत करेंगे, जबकि अपमान या अज्ञान उसके क्रोध को भड़का देगा।
+            </p>
+            <button id="enterDoorBtn" class="creaky-enter-btn">कपाट खोलें (Enter Haveli)</button>
+        </div>
+    </div>
+
+    <!-- 2. Clue Journal Modal -->
+    <div id="journalModal" class="modal-overlay" style="display: none;">
+        <div class="journal-card">
+            <div class="journal-header">
+                <h3>हवेली के रहस्य (The 3 Secrets)</h3>
+                <button id="closeJournalBtn" class="close-btn">&times;</button>
+            </div>
+            <div class="clues-list">
+                <div id="clueItem1" class="clue-item">
+                    <div class="clue-item-header">
+                        <span>१. टूटा हुआ दर्पण (The Shattered Mirror)</span>
+                        <span class="status-tag">अन्वेषण जारी (Searching)</span>
+                    </div>
+                    <p>जो बिना आँखों के सारा सच दिखाती है... हवेली की दाहिनी दीवार पर antique शीशे को मोमबत्ती से देखें।</p>
+                </div>
+                <div id="clueItem2" class="clue-item">
+                    <div class="clue-item-header">
+                        <span>२. मौन घुंघरू (The Silent Ghungroos)</span>
+                        <span class="status-tag">अन्वेषण जारी (Searching)</span>
+                    </div>
+                    <p>संगीत की वह झंकार जो सदियों से इस वीराने में खामोश है... रानी के कदमों की आवाज़।</p>
+                </div>
+                <div id="clueItem3" class="clue-item">
+                    <div class="clue-item-header">
+                        <span>३. मुक्ति का मार्ग (Salvation & Peace)</span>
+                        <span class="status-tag">अन्वेषण जारी (Searching)</span>
+                    </div>
+                    <p>आत्मा को नश्वर संसार के बंधनों से क्षमा और आदर देकर मुक्त करना।</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 3. Game Over / Win Modal -->
+    <div id="gameOverModal" class="modal-overlay" style="display: none;">
+        <div class="door-card">
+            <h2 id="endTitle">हवेली का परिणाम</h2>
+            <p id="endDesc"></p>
+            <button id="restartBtn" class="creaky-enter-btn">पुनः प्रयास करें (Try Again)</button>
+        </div>
+    </div>
+
+    <!-- Game Scripts -->
+    <script src="/static/js/audio.js"></script>
+    <script src="/static/js/haveli-canvas.js"></script>
+    <script src="/static/js/speech.js"></script>
+    <script src="/static/js/main.js"></script>
+</body>
+</html>
